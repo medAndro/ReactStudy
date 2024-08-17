@@ -3,14 +3,33 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container, Nav, Navbar, Row, Col} from 'react-bootstrap';
 import bg from './img/bg.png';
-import { useState } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import data from './data.js';
-import Detail from './pages/detail.js';
-import {Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom'
+import { Detail,  Banner}  from './pages/detail.js';
+import {Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom';
+import axios from 'axios';
+
+export let Context1 = createContext()
 
 function App() {
-  let [changsup] = useState(data);
+  let [changsup, setChangsup] = useState(data);
   let navigate = useNavigate();
+  let [btnIdx, setBtnIdx] = useState(2);
+  let [loadDisplay, setLoadDisplay] = useState('none');
+  let [warnDisplay, setWarnDisplay] = useState('none');
+  let [stocks] = useState([10,11,12,13,14,15,16,17,18]);
+
+  useEffect(()=>{
+    let a = setTimeout(()=>{
+      setWarnDisplay(warnDisplay = 'None');
+    }, 2000);
+    console.log("useEffect 동작 코드")
+    return()=>{
+        clearTimeout(a)
+        console.log("useEffect 동작 전에 실행되는 코드")
+    }
+  }, [warnDisplay])
+
   return (
     <div className="App">
       <Navbar bg="dark" data-bs-theme="dark">
@@ -37,10 +56,38 @@ function App() {
                   })
                 }
               </Row>
+              <Banner display={loadDisplay} className='alert alert-info'>신창섭 로딩중...</Banner>
             </Container>
+
+            <Banner display= {warnDisplay} className='alert alert-warning'>더이상은 없어...</Banner>
+            {
+              <button type="button" class="btn btn-info" onClick={btnIdx<=3?
+                ()=>{
+                  setLoadDisplay('block');
+                  axios.get('https://raw.githubusercontent.com/medAndro/ReactStudy/main/shop/public/god'+ btnIdx +'.json')
+                  .then((response)=>{ 
+                    let copy = [...changsup, ...response.data];
+                    setChangsup(copy);
+                    setBtnIdx(btnIdx+1);
+                    setLoadDisplay('none');
+                  })
+                  .catch(()=>{
+                    console.log('Get요청  실패');
+                    setLoadDisplay('none');
+                  })
+                }: ()=>{
+                  setWarnDisplay('block');
+                }
+              }>창섭 더 불러오기</button>
+            }
+
           </>
         }/>
-        <Route path="/detail/:idx" element = { <Detail obj={changsup}/>}/>
+        <Route path="/detail/:idx" element = {
+            <Context1.Provider value = {{stocks}}>
+              <Detail />
+            </Context1.Provider>
+        }/>
         <Route path="*" element = {<div>없는 페이지입니다</div>}/>
         <Route path="/about" element = { <About/>}>
           <Route path="member" element = { <div>멤버페이지</div>}/>
@@ -51,14 +98,18 @@ function App() {
           <Route path="two" element = { <div>생일기념 기간제 선물</div>}/>
         </Route>
       </Routes>
-
     </div>
   );
 }
 function Goods(props){
   return(
     <Col md={4}>
-      <img src={process.env.PUBLIC_URL + props.obj.src} />
+      <div style={{ aspectRatio: '16/9', overflow: 'hidden' }}>
+        <img 
+          src={process.env.PUBLIC_URL + props.obj.src} 
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
+      </div>
       <h4>{props.obj.title}</h4>
       <p>{props.obj.content}</p>
     </Col>

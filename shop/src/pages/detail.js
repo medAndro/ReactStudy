@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
-import {Container, Row, Col} from 'react-bootstrap';
+import { useContext, useEffect, useState } from 'react';
+import { Container, Row, Col, Nav } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import axios from 'axios';
+import data from '../data.js';
+import { Context1 } from '../App.js'
 
 let Btn = styled.button`
     background : ${props => props.bg};
@@ -14,10 +17,30 @@ let Banner = styled.div`
 `
 
 function Detail(props){
+
+
+    let maxData = 8;
+
     let {idx} = useParams();
+    let [obj, setObj] = useState(data);
+    
+    useEffect(()=>{
+        if (idx >= 3 && idx <=maxData ){
+            let page = idx<=5? 2:3
+            axios.get('https://raw.githubusercontent.com/medAndro/ReactStudy/main/shop/public/god'+ page +'.json')
+            .then((response)=>{ 
+                setObj([...response.data])
+            })
+            .catch(()=>{
+            console.log('Get요청  실패');
+            })
+        }
+    }, [])
+
     let [display, setDisplay] = useState('block');
     let [alert, setAlert] = useState(true);
     let [numRestrict, setNumRestrict] = useState(false);
+    let [tab, setTab] = useState(0);
     useEffect(()=>{
         let a = setTimeout(()=>{
             setDisplay(display = 'None');
@@ -35,8 +58,22 @@ function Detail(props){
 
 
     let [cnt, setCnt] = useState(0)
+
+    let [fade, setFade] = useState('')
+
+    useEffect(()=>{
+        let a = setTimeout(()=>{
+            setFade('end')
+        },100)
+        
+        return ()=>{
+            clearTimeout(a);
+            setFade('');
+        }
+    }, [])
     return(
-        <Container>
+        <Container className={'start '+ fade}>
+            
             <Banner display= {display} className='alert alert-warning'>2초 이내 구매시 할인(css)</Banner>
             {
                 alert?
@@ -44,13 +81,18 @@ function Detail(props){
                 :null
 
             }
-            
-            {cnt}
-            <Btn onClick={()=> setCnt(cnt+1)} bg='blue'>버튼</Btn>
-            {idx<props.obj.length? 
+            {/* {cnt}
+            <Btn onClick={()=> setCnt(cnt+1)} bg='blue'>버튼</Btn> */}
+            {idx<=maxData? 
             <Row>
                 <Col md={6}>
-                    <img src={process.env.PUBLIC_URL + props.obj[idx].src} />
+                <div style={{ aspectRatio: '16/9', overflow: 'hidden' }}>
+                    <img 
+                    src={process.env.PUBLIC_URL + obj[idx%3].src} 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                </div>
+                    
                 </Col>
                 <Col md={6}>
                     {
@@ -59,15 +101,49 @@ function Detail(props){
                     :null
                     }
                     <input type="text" onChange={(e)=>{setNumRestrict(isNaN(e.target.value))}}></input>
-                    <h4 className="pt-5">{props.obj[idx].title}</h4>
-                    <p>{props.obj[idx].content}</p>
-                    <p>{props.obj[idx].price}</p>
+                    <h4 className="pt-5">{obj[idx%3].title}</h4>
+                    <p>{obj[idx%3].content}</p>
+                    <p>{obj[idx%3].price}</p>
                     <button className="btn btn-danger">주문하기</button>
                 </Col>               
             </Row>:<div>상품이 없습니다</div>
             }
+            <Nav variant="tabs" defaultActiveKey="/link0">
+                <Nav.Item>
+                    <Nav.Link onClick={()=>{setTab(0)}} eventKey="link0">버튼0</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link onClick={()=>{setTab(1)}} eventKey="link1">버튼1</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link onClick={()=>{setTab(2)}} eventKey="link2">버튼2</Nav.Link>
+                </Nav.Item>
+            </Nav>
+            <TabContent idx = {idx} obj ={obj[idx%3]} tab = {tab}/>
         </Container>
     )
   }
 
-export default Detail;
+function TabContent(props){
+    let {stocks} = useContext(Context1)
+    let [fade, setFade] = useState('')
+
+    useEffect(()=>{
+        let a = setTimeout(()=>{
+            setFade('end')
+        },100)
+        
+        return ()=>{
+            clearTimeout(a);
+            setFade('');
+        }
+    }, [props])
+
+    return (<div className={'start '+ fade}>
+       {[ <div>{props.obj.title}</div>,  <div>재고 : {stocks[props.idx]}</div>,  <div>내용2</div>][props.tab]}
+
+    </div>)
+
+}
+
+export {Banner, Detail};
