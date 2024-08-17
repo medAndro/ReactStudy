@@ -1,0 +1,22 @@
+[ {
+      "id":3,
+      "title":"메이플 댄스",
+      "content": "정상화를 위한 춤",
+      "src": "/maple-dance.gif",
+      "price":33333
+  },    
+  {
+      "id":4,
+      "title":"복싱",
+      "content": "복싱으로 리선족 척결",
+      "src": "/boxing.gif",
+      "price":44444
+  },
+  {
+      "id":5,
+      "title":"로아",
+      "content": "로스트아크로 꺼지세요",
+      "src": "/lostark.gif",
+      "price":55555
+  }
+]
