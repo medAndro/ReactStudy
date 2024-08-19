@@ -8,6 +8,7 @@ import data from './data.js';
 import { Detail,  Banner}  from './pages/detail.js';
 import {Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom';
 import axios from 'axios';
+import Cart from './pages/Cart.js'
 
 export let Context1 = createContext()
 
@@ -97,6 +98,8 @@ function App() {
           <Route path="one" element = { <div>첫 주문시 메소 정상화 서비스</div>}/>
           <Route path="two" element = { <div>생일기념 기간제 선물</div>}/>
         </Route>
+
+        <Route path="/cart" element={<Cart/>}/>
       </Routes>
     </div>
   );
