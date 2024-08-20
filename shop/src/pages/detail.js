@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
-import { Container, Row, Col, Nav } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Container, Row, Col, Nav, Alert } from 'react-bootstrap';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 import data from '../data.js';
 import { Context1 } from '../App.js'
+import { addItem } from '../store.js';
+import { useDispatch} from 'react-redux'
 
 let Btn = styled.button`
     background : ${props => props.bg};
@@ -17,25 +19,47 @@ let Banner = styled.div`
 `
 
 function Detail(props){
-
-
     let maxData = 8;
-
     let {idx} = useParams();
-    let [obj, setObj] = useState(data);
-    
+    let [obj, setObj] = useState('loading');
+    let dispatch = useDispatch();
+    let navigate = useNavigate();
+    let location = useLocation();
+
     useEffect(()=>{
+        setObj('loading');
+        const updateLocalStorage = (obj) => {
+            let watched = localStorage.getItem('watched');
+            if(watched === null) { 
+                localStorage.setItem('watched', JSON.stringify([]));
+                watched = [];
+            }else{
+                watched = JSON.parse(watched);
+            }
+            const isDuplicate = watched.some(item => item.idx === idx);
+            if (!isDuplicate) {
+                watched.push({"title":obj[idx%3].title, "idx": idx});
+            }
+            
+            localStorage.setItem('watched', JSON.stringify(Array.from(watched)));
+            props.setRecentlyObj(Array.from(watched))
+        }
         if (idx >= 3 && idx <=maxData ){
             let page = idx<=5? 2:3
             axios.get('https://raw.githubusercontent.com/medAndro/ReactStudy/main/shop/public/god'+ page +'.json')
             .then((response)=>{ 
                 setObj([...response.data])
+                updateLocalStorage([...response.data]);
             })
             .catch(()=>{
-            console.log('Get요청  실패');
+                console.log('Get요청  실패');
+
             })
+        }else{
+            setObj(data);
+            updateLocalStorage(data);
         }
-    }, [])
+    }, [location])
 
     let [display, setDisplay] = useState('block');
     let [alert, setAlert] = useState(true);
@@ -73,7 +97,6 @@ function Detail(props){
     }, [])
     return(
         <Container className={'start '+ fade}>
-            
             <Banner display= {display} className='alert alert-warning'>2초 이내 구매시 할인(css)</Banner>
             {
                 alert?
@@ -83,7 +106,13 @@ function Detail(props){
             }
             {/* {cnt}
             <Btn onClick={()=> setCnt(cnt+1)} bg='blue'>버튼</Btn> */}
-            {idx<=maxData? 
+            {obj==='loading'?
+            
+                        <Alert key='info' variant='info'>
+                        로딩중
+                        </Alert>
+            :
+            idx<=maxData? 
             <Row>
                 <Col md={6}>
                 <div style={{ aspectRatio: '16/9', overflow: 'hidden' }}>
@@ -104,7 +133,12 @@ function Detail(props){
                     <h4 className="pt-5">{obj[idx%3].title}</h4>
                     <p>{obj[idx%3].content}</p>
                     <p>{obj[idx%3].price}</p>
-                    <button className="btn btn-danger">주문하기</button>
+                    <button className="btn btn-danger" onClick={
+                        ()=>{
+                            dispatch(addItem({id : idx, name : obj[idx%3].title, count : 1}));
+                            navigate('/Cart')
+                        }
+                    }>장바구니 넣기</button>
                 </Col>               
             </Row>:<div>상품이 없습니다</div>
             }

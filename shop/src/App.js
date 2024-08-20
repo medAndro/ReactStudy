@@ -9,6 +9,7 @@ import { Detail,  Banner}  from './pages/detail.js';
 import {Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom';
 import axios from 'axios';
 import Cart from './pages/Cart.js'
+import RecentlyViewed from './RecentlyViewed.js';
 
 export let Context1 = createContext()
 
@@ -19,6 +20,15 @@ function App() {
   let [loadDisplay, setLoadDisplay] = useState('none');
   let [warnDisplay, setWarnDisplay] = useState('none');
   let [stocks] = useState([10,11,12,13,14,15,16,17,18]);
+  let [recentlyObj, setRecentlyObj] = useState([]);
+  
+  useEffect(() =>{
+    let getWatched = localStorage.getItem('watched');
+    if(getWatched === null) { 
+      localStorage.setItem('watched', JSON.stringify([]))
+    }
+    
+  }, [])
 
   useEffect(()=>{
     let a = setTimeout(()=>{
@@ -35,14 +45,14 @@ function App() {
     <div className="App">
       <Navbar bg="dark" data-bs-theme="dark">
         <Container>
-          <Navbar.Brand href="#home">창섭몰</Navbar.Brand>
+          <Navbar.Brand onClick={()=> navigate('/')} style={{ cursor: 'pointer' }}>창섭몰</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link onClick={()=> navigate('/')}>홈</Nav.Link>
-            <Nav.Link onClick={()=> navigate('/detail')}>상세 페이지</Nav.Link>
+            <Nav.Link onClick={()=> navigate('/Cart')}>카트</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
-
+      <RecentlyViewed recentlyObj = {recentlyObj} setRecentlyObj = {setRecentlyObj} />
       <Routes>
         <Route path="/" element={
           <>
@@ -86,7 +96,7 @@ function App() {
         }/>
         <Route path="/detail/:idx" element = {
             <Context1.Provider value = {{stocks}}>
-              <Detail />
+              <Detail setRecentlyObj = {setRecentlyObj} />
             </Context1.Provider>
         }/>
         <Route path="*" element = {<div>없는 페이지입니다</div>}/>
@@ -105,8 +115,10 @@ function App() {
   );
 }
 function Goods(props){
+  let navigate = useNavigate();
   return(
     <Col md={4}>
+      <div onClick={()=>{navigate('/detail/'+props.idx)}}  style={{ cursor: 'pointer' }}>
       <div style={{ aspectRatio: '16/9', overflow: 'hidden' }}>
         <img 
           src={process.env.PUBLIC_URL + props.obj.src} 
@@ -115,6 +127,7 @@ function Goods(props){
       </div>
       <h4>{props.obj.title}</h4>
       <p>{props.obj.content}</p>
+      </div>
     </Col>
   )
 }
