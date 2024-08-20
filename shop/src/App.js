@@ -3,14 +3,16 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container, Nav, Navbar, Row, Col} from 'react-bootstrap';
 import bg from './img/bg.png';
-import { useState, useEffect, createContext } from 'react';
+import { lazy, Suspense, useState, useEffect, createContext } from 'react';
 import data from './data.js';
 import { Detail,  Banner}  from './pages/detail.js';
 import {Routes, Route, Link, useNavigate, Outlet} from 'react-router-dom';
 import axios from 'axios';
-import Cart from './pages/Cart.js'
 import RecentlyViewed from './RecentlyViewed.js';
-
+import { useQuery } from 'react-query';
+//import Cart from './pages/Cart.js'
+const Cart = lazy(() => import('./pages/Cart.js'));
+const Test = lazy(() => import('./pages/Test.js'));
 export let Context1 = createContext()
 
 function App() {
@@ -41,6 +43,16 @@ function App() {
     }
   }, [warnDisplay])
 
+
+  let result = useQuery('getName', ()=>
+    axios.get('https://raw.githubusercontent.com/medAndro/ReactStudy/main/shop/public/userdata.json').then((a)=>{
+      console.log('요청됨')
+      return a.data
+    }),
+    {staleTime : 2000}
+  )
+
+
   return (
     <div className="App">
       <Navbar bg="dark" data-bs-theme="dark">
@@ -49,10 +61,13 @@ function App() {
           <Nav className="me-auto">
             <Nav.Link onClick={()=> navigate('/')}>홈</Nav.Link>
             <Nav.Link onClick={()=> navigate('/Cart')}>카트</Nav.Link>
+            <Nav.Link onClick={()=> navigate('/Test')}>테스트페이지</Nav.Link>
           </Nav>
+          <Nav className="ms-auto text-light">{ result.isLoading?"로딩중입니다":result.data.name }</Nav>
         </Container>
       </Navbar>
       <RecentlyViewed recentlyObj = {recentlyObj} setRecentlyObj = {setRecentlyObj} />
+      <Suspense fallback={<div>로딩중</div>}>
       <Routes>
         <Route path="/" element={
           <>
@@ -94,6 +109,7 @@ function App() {
 
           </>
         }/>
+        
         <Route path="/detail/:idx" element = {
             <Context1.Provider value = {{stocks}}>
               <Detail setRecentlyObj = {setRecentlyObj} />
@@ -108,9 +124,11 @@ function App() {
           <Route path="one" element = { <div>첫 주문시 메소 정상화 서비스</div>}/>
           <Route path="two" element = { <div>생일기념 기간제 선물</div>}/>
         </Route>
-
+        <Route path="/test" element = { <Test/>}>
+        </Route>
         <Route path="/cart" element={<Cart/>}/>
       </Routes>
+      </Suspense>
     </div>
   );
 }

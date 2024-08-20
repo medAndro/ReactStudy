@@ -2,11 +2,29 @@ import { Table } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { addAge, changeName } from '../store/userSlice'
 import { addCount, delCount } from '../store'
+import { memo, useMemo, useState } from 'react'
+
+
+// let Child = memo(function(){
+//     console.log('렌더링')
+//     return <div>자식임</div>
+// })
+
+// function lazyFunc(){
+//     return 1
+// }
 function Cart(){
     let state = useSelector((state)=> {return state})
     let dispatch = useDispatch()
+    let [count, setCount] = useState(0)
+
+    // let result = useMemo(() => {
+    //     return lazyFunc()
+    // }, [state])
     return (
         <div>
+            {/* <Child count={count}></Child>
+            <button onClick={()=>{setCount(count+1)}}>+</button> */}
             {state.user.name}({state.user.age}세) 의 장바구니
             <button onClick={()=>{
                                 dispatch(changeName())

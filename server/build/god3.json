@@ -1,0 +1,22 @@
+[ {
+      "id":6,
+      "title":"뭉탱이",
+      "content": "뭉탱이로 있다가 유링게슝",
+      "src": "/godttange.gif",
+      "price":666
+  },    
+  {
+      "id":7,
+      "title":"어둠의 댄스",
+      "content": "창섭 맥과이어",
+      "src": "/spiderman.gif",
+      "price":777
+  },
+  {
+      "id":8,
+      "title":"호오오오우",
+      "content": "창날두",
+      "src": "/hou.gif",
+      "price":88888
+  }
+]

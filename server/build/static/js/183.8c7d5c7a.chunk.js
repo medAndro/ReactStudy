@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkshop=self.webpackChunkshop||[]).push([[183],{183:(e,s,n)=>{n.r(s),n.d(s,{default:()=>l});var t=n(43),a=n(579);let r=new Array(1e3).fill(0);const l=function(){let[e,s]=(0,t.useState)(""),[n,l]=(0,t.useTransition)(),u=(0,t.useDeferredValue)(e);return(0,a.jsxs)("div",{className:"Test",children:[(0,a.jsx)("div",{children:"\ud14c\uc2a4\ud2b8\ud398\uc774\uc9c0"}),(0,a.jsx)("input",{onChange:e=>{l((()=>{s(e.target.value)}))}}),n?"\ub85c\ub529\uc911":r.map((()=>(0,a.jsx)("div",{children:u})))]})}}}]);
+//# sourceMappingURL=183.8c7d5c7a.chunk.js.map
